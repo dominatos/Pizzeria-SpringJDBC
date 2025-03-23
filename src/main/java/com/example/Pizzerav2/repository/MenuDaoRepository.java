@@ -1,6 +1,7 @@
 package com.example.Pizzerav2.repository;
 
 import com.example.Pizzerav2.model.Menu;
+import com.example.Pizzerav2.model.Prodotto;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public interface MenuDaoRepository {
     public Menu findMenuByName(String name);
 
 
+    Prodotto findProdottoById(Long id);
 
     void deleteMenu(int id);
 

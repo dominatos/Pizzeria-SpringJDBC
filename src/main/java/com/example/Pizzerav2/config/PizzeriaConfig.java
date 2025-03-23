@@ -88,7 +88,16 @@ public class PizzeriaConfig {
     @Scope("prototype")
     public Cliente creaFakeCliente() {
         Faker fake = new Faker(Locale.forLanguageTag("it-IT"));
-        return new Cliente(fake.name().fullName(), fake.phoneNumber().cellPhone());
+
+        return new Cliente(fake.name().firstName(),fake.name().fullName(), fake.phoneNumber().cellPhone());
+    }
+
+    @Bean
+    @Scope("prototype")
+    public Cliente createCustomCliente() {
+
+
+        return new Cliente();
     }
 
     @Bean

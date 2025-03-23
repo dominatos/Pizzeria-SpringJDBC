@@ -4,6 +4,8 @@ import com.example.Pizzerav2.model.Cliente;
 import com.example.Pizzerav2.model.Menu;
 import com.example.Pizzerav2.model.Ordine;
 import com.example.Pizzerav2.model.Prodotto;
+import com.example.Pizzerav2.repository.MenuDAO;
+import com.example.Pizzerav2.repository.OrdineDAO;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,114 +14,158 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class OrdineService {
 
+    // Utilizzato per generare dati casuali, come nomi di clienti o numeri di telefono
     private static Faker faker = new Faker();
-    private List<Ordine> listaOrdini = new ArrayList<Ordine>();
-    private static int numOrdine = 1;
-    @Autowired @Qualifier("creaOrdine1")    ObjectProvider <Ordine> ordineObjectProvider;
-    @Autowired @Qualifier("creaFakeCliente") ObjectProvider <Cliente> clienteFakeObjectProvider;
-    @Autowired    private MenuService menuService;
-    @Autowired    private ObjectProvider<Menu> menuProvider;
-    public Ordine creaOrdine(Cliente cliente,List<Prodotto> prodotti){
+
+    // Lista per memorizzare temporaneamente gli ordini (utile per test o operazioni locali)
+    private List<Ordine> listaOrdini = new ArrayList<>();
+
+    @Autowired
+    OrdineDAO ordineDAO; // DAO per la gestione degli ordini nel database
+    @Autowired
+    MenuDAO menuDAO; // DAO per la gestione dei menu nel database
+    @Autowired
+    @Qualifier("creaOrdine1") // Provider per ottenere un oggetto Ordine configurato tramite Spring
+    ObjectProvider<Ordine> ordineObjectProvider;
+
+    @Autowired
+    @Qualifier("creaFakeCliente") // Provider per generare clienti fittizi tramite Spring
+    ObjectProvider<Cliente> clienteFakeObjectProvider;
+
+    @Autowired
+    @Qualifier("createCustomCliente") // Provider per generare clienti fittizi tramite Spring
+    ObjectProvider<Cliente> CustomClienteObjectProvider;
+    @Autowired
+    private MenuService menuService; // Servizio per gestire i menu
+
+    @Autowired
+    private ObjectProvider<Menu> menuProvider; // Provider per ottenere oggetti Menu
+
+    // Metodo per creare un nuovo ordine
+    public Ordine creaOrdine(Cliente cliente, List<Prodotto> prodotti) {
+        // Recupero un oggetto Ordine fornito da Spring (se disponibile)
         Ordine ord = ordineObjectProvider.getIfAvailable();
-        //Cliente fakeCliente = clienteFakeObjectProvider.getIfAvailable();
-        Double total=0.0;
-        total=prodotti.stream().mapToDouble(Prodotto::getPrezzo).sum();
-        //Ordine ord=new Ordine();
-        assert ord != null;
+
+        // Calcolo del totale dell'ordine sommando i prezzi dei prodotti
+        Double total = prodotti.stream().mapToDouble(Prodotto::getPrezzo).sum();
+
+        // Imposto i dati del cliente, dei prodotti e del totale nell'oggetto ordine
         ord.setCliente(cliente);
-                ord.setListaProdotti(prodotti);
-                ord.setTotale(total);
-                ord.setDataOrdine(LocalDate.now());
-                ord.setNumeroOrdine(numOrdine);
+        ord.setListaProdotti(prodotti);
+        ord.setTotale(total);
+        ord.setDataOrdine(LocalDate.now()); // Imposto la data corrente dell'ordine
 
-                listaOrdini.add(ord);
-                numOrdine++;
-
-
-                return ord;
+        // Restituisco l'oggetto Ordine appena creato
+        return ord;
     }
-//    public void stampaordini(){
-//        listaOrdini.forEach(System.out::println);
-//    }
+
+    // Metodo per recuperare un ordine dal database tramite il suo ID
+    public Ordine getOrdineById(Long id) {
+        return ordineDAO.findOrdineById(id);
+    }
+    // Metodo per creare n ordini casuali da un menu specifico
+    public void creaNordini(int n, Long menuNum) {
+        for (int i = 0; i < n; i++) {
+            // Genero un numero casuale di prodotti (da 2 a 5)
+            int numProd = faker.number().numberBetween(2, 5);
+
+            // Creo un nuovo ordine con cliente casuale e prodotti casuali
+            Ordine o = creaOrdine(creaFakeCliente(), getRandomProdotto(numProd, menuNum));
+
+            // Salvo l'ordine nel database
+            salvaOrdine(o);
+        }
+    }
+
+    // Metodo per salvare un ordine nel database
+    public void salvaOrdine(Ordine ordine) {
+        ordineDAO.saveOrdine(ordine);
+    }
+    public void removeOrdine(Integer id) {
+        ordineDAO.deleteOrdine(id);
+    }
+    // Metodo per stampare tutti gli ordini
     public void stampaordini() {
-        listaOrdini.forEach(ordine -> {
-            System.out.printf("Ordine ID: %d | Cliente: %s | Prodotti: %s | Totale: %.2f€%n",
-                    ordine.getNumeroOrdine(),
-                    ordine.getCliente().getNome(),
-                    ordine.getListaProdotti().stream()
-                            .map(p -> p.getNome() + "(" + p.getPrezzo() + "€)")
-                            .collect(Collectors.joining(", ")),
-                    ordine.getTotale()
-            );
-        });
-    }
+        // Recupero gli ordini dal DAO e li stampo uno ad uno
+        // Stampa dell'oggetto Ordine
+        System.out.println("********************************" +
+                "Lista ordini:********************************");
 
-    public Ordine findOrdine(Integer idOrdine) {
-        return listaOrdini.stream()
-                .filter(p -> p.getNumeroOrdine() == idOrdine)
-                .findFirst()
-                .orElse(null);
-    }
-    public Cliente getFakeCliente() {
-        return clienteFakeObjectProvider.getObject();
+        ordineDAO.getListaOrdini().forEach(System.out::println);
+        // listaOrdini.forEach(ordine -> { // System.out.printf("Ordine ID: %d | Cliente: %s | Prodotti: %s | Totale: %.2f€%n", // ordine.getNumeroOrdine(), // ordine.getCliente().getNome(), // ordine.getListaProdotti().stream() // .map(p -> p.getNome() + "(" + p.getPrezzo() + "€)") // .collect(Collectors.joining(", ")), // ordine.getTotale() // ); // });
+        System.out.println("**************************************************************** "
+                );
     }
 
 
 
-    public List<Prodotto> getRandomProdotto(int n) {
-        // Получаем меню через провайдер
-        Menu menu = menuProvider.getObject();
+    public void modificaOrdine(Ordine ordine) {
+        ordineDAO.updateOrdine(ordine);
+        System.out.println("Ordine"+ordine.getNumeroOrdine()+" modificato");
+    }
+    public void saveCliente(Cliente cliente) {
 
-        // Создаем список всех продуктов
+        ordineDAO.salvaCliente(cliente);
+
+    }
+    // Metodo per generare un cliente
+    public Cliente getCustomCliente(String nome,String cognome,String telefono) {
+        // Ottengo un cliente casuale tramite Spring e lo salvo nel database
+        Cliente client = CustomClienteObjectProvider.getIfAvailable();
+        client.setNome(nome);
+        client.setCognome(cognome);
+        client.setTelefono(telefono);
+        ordineDAO.salvaCliente(client);
+        return client;
+    }
+    // Metodo per generare un cliente fittizio
+    public Cliente creaFakeCliente() {
+        // Ottengo un cliente casuale tramite Spring e lo salvo nel database
+        Cliente client = clienteFakeObjectProvider.getIfAvailable();
+        ordineDAO.salvaCliente(client);
+        return client;
+    }
+    public void removeClient(Long id) {
+        ordineDAO.removeCliente(ordineDAO.getCliente(id));
+    }
+    public Cliente getClienteById(Long id) {
+        return ordineDAO.getCliente(id);
+    }
+    public void modificaCliente(Cliente cliente) {
+        ordineDAO.modificaCliente(cliente);
+    }
+    public List<Cliente> getListaCliente() {
+        List<Cliente> allClients = new ArrayList<>();
+        allClients=ordineDAO.getListaClienti();
+        return allClients;
+    }
+    public void stampaListaCliente() {
+        System.out.println("********************************" +
+                "Lista Clienti:********************************");
+        this.getListaCliente().forEach(System.out::println);
+    }
+
+    // Metodo per ottenere una lista di prodotti casuali da un menu specifico
+    public List<Prodotto> getRandomProdotto(int n, Long menuNum) {
         List<Prodotto> allProducts = new ArrayList<>();
 
-        // Добавляем все напитки
-        allProducts.addAll(menu.getDrinkList());
+        // Aggiungo la lista delle bevande del menu specificato
+        allProducts.addAll(menuDAO.findMenuById(menuNum).getDrinkList());
 
-        // Добавляем все пиццы
-        allProducts.addAll(menu.getPizzaList());
+        // Aggiungo la lista delle pizze del menu specificato
+        allProducts.addAll(menuDAO.findMenuById(menuNum).getPizzaList());
 
-        // Перемешиваем список
+        // Mischio casualmente la lista di prodotti
         Collections.shuffle(allProducts);
 
-        // Возвращаем только n продуктов из перемешанного списка
+        // Restituisco solo i primi n prodotti dalla lista mescolata
         return allProducts.subList(0, Math.min(n, allProducts.size()));
     }
-//    public List<Prodotto> getRandomProdotto(int n) {
-//        List<Prodotto> allProducts = new ArrayList<>(
-//                Arrays.asList(
-//
-//                        menuService.getDrinkbirra(),
-//                        menuService.getDrinkCocaCola(),
-//                        menuService.getPizzaMargerita(),
-//                        menuService.getPizzasalsiccia(),
-//                        menuService.getPizzasalsicciap(),
-//                        menuService.createpizza("Gorgonzolla",List.of("base","gorgonzola","salsa"),9.00),
-//                        menuService.createpizza("Quattro formaggi",List.of("base","gorgonzola","mozarella","elemental","parmeggiano reggiano"),9.00),
-//                        menuService.drinkgener("VIno Bianco",12.00,10.00),
-//                        menuService.drinkgener("Vino rosso",12.00,10.00),
-//                        menuService.drinkgener("Caffe espresso",0.00,1.20),
-//                        menuService.drinkgener("Te verde",0.00,1.20)
-//                )
-//        );
-//
-//        Collections.shuffle(allProducts);
-//
-//        // Возвращаем только n продуктов из перемешанного списка
-//        return allProducts.subList(0, Math.min(n, allProducts.size()));
-//    }
-    public void creaNordini(int n)
-    {
-        for(int i=0;i<n;i++)
-        {int numProd=faker.number().numberBetween(2,5);
-            creaOrdine(getFakeCliente(),getRandomProdotto(numProd));
 
 
-       }
-    }
 }
+

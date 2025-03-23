@@ -21,9 +21,9 @@ public class Drink extends Prodotto {
 
     @Override
     public String toString() {
-        return "Drink "
+        return ""
                 + super.getNome()  +
                 " Gradazione: " + gradazione +
-                " prezzo: " + super.getPrezzo()+"\n";
+                "° prezzo: " + super.getPrezzo()+"€";
     }
 }

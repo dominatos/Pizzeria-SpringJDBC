@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,4 +19,16 @@ public class Ordine {
     private LocalDate dataOrdine;
     private Double totale;
 
+    @Override
+    public String toString() {
+        return String.format(
+                "OrdineID: %d | Cliente: %s | Prodotti: %s | Totale: %.2f€",
+                numeroOrdine,
+                cliente.getNome()+" "+ cliente.getCognome(),
+                listaProdotti.stream()
+                        .map(p -> String.format("%s (%.2f€)", p.getNome(), p.getPrezzo()))
+                        .collect(Collectors.joining(", ")),
+                totale
+        );
+    }
 }

@@ -1,7 +1,9 @@
 package com.example.Pizzerav2.runner;
 
 
+import com.example.Pizzerav2.model.Cliente;
 import com.example.Pizzerav2.model.Menu;
+import com.example.Pizzerav2.repository.DBDAO;
 import com.example.Pizzerav2.service.MenuService;
 import com.example.Pizzerav2.service.OrdineService;
 import org.springframework.beans.factory.ObjectProvider;
@@ -10,11 +12,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLOutput;
-
 
 @Component
 public class PizzeriaRunner implements CommandLineRunner {
+    @Autowired
+    DBDAO dbDAO;
     @Autowired
     MenuService menuService; // new MenuService();
     @Autowired
@@ -24,29 +26,47 @@ public class PizzeriaRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        //menuService.menuStamp();
-//        Menu menuProdotti = menuService.creamenu1();
-//        menuService.salvaMenu(menuProdotti);
-        //System.out.println(menuService.findMenuById(3L));
-        //System.out.println(menuService.findbyname("Peppe"));
+
+
+
+        //DB INIZIALIZATION
+        //dbDAO.dropDB();
+        dbDAO.initilizeDB();
+
+
+// MENU CRUD
+       //menuService.salvaMenu(menuService.creamenu());
+        //menuService.menuStamp(menuService.findMenuById(1L));
         //menuService.removeMenu(2);
-        Menu menu = menuService.creamenu1();
-        //menu.setNome("WTF");
-        //menuService.menuStamp(menu);
-        menuService.salvaMenu(menu);
-        Menu menu2 = menuService.findMenuById(1l);
-        menuService.menuStamp(menu2);
-        //menuService.salvaMenu(menu2);
-        //System.out.println(menu2);
-        //menu.getPizzaList().forEach(System.out::println);
-
-        //menu.setNome("Peppe wtf");
+        Menu menu=menuService.findMenuById(1L);
+        //menu.setNome("Pizzeria al Ponte");
         //menuService.updateMenu(menu);
-        //System.out.println(menu);
 
-
-        ordineService.creaNordini(20);
+        //menuService.menuStamp(menuService.findMenuByName("WTF2"));
+// ORDINE CRUD
+        //ordineService.creaNordini(10,1L);
+    //Ordine ordine = ordineService.getOrdineById(1L);
+    //ordine.setListaProdotti(ordineService.getRandomProdotto(5,1L));
+        //ordineService.modificaOrdine(ordine);
+      // ordineService.removeOrdine(1);
         ordineService.stampaordini();
+
+        // CLIENTE CRUD
+        Cliente c=ordineService.creaFakeCliente();
+        System.out.println(ordineService.getClienteById(c.getId()));
+
+        //c=ordineService.getCustomCliente("Carmine","WTF","6456456");
+        //ordineService.saveCliente(c);
+        //ordineService.removeClient(6L);
+//        Cliente c=ordineService.getClienteById(4L);
+//        c.setNome("Carmine");
+//        c.setCognome("wtf");
+//        c.setTelefono("8798787655");
+//        ordineService.modificaCliente(c);
+
+        //ordineService.stampaListaCliente();
+
+
 
     }
 }

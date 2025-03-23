@@ -35,7 +35,7 @@ public class Pizza extends Prodotto {
         return "Pizza "
                 + super.getNome()  +
                 " ingredient: " + listaIngredienti() +
-                " prezzo: " + super.getPrezzo()+"\n";
+                " prezzo: " + super.getPrezzo()+"€";
     }
 
     public void setListaIngredienti(List<String> ingredientiPizza) {
