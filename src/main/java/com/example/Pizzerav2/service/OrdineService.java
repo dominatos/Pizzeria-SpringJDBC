@@ -97,7 +97,7 @@ public class OrdineService {
 
         ordineDAO.getListaOrdini().forEach(System.out::println);
         // listaOrdini.forEach(ordine -> { // System.out.printf("Ordine ID: %d | Cliente: %s | Prodotti: %s | Totale: %.2f€%n", // ordine.getNumeroOrdine(), // ordine.getCliente().getNome(), // ordine.getListaProdotti().stream() // .map(p -> p.getNome() + "(" + p.getPrezzo() + "€)") // .collect(Collectors.joining(", ")), // ordine.getTotale() // ); // });
-        System.out.println("**************************************************************** "
+        System.out.println("******************************************************************************"
                 );
     }
 
@@ -147,6 +147,8 @@ public class OrdineService {
         System.out.println("********************************" +
                 "Lista Clienti:********************************");
         this.getListaCliente().forEach(System.out::println);
+        System.out.println("******************************************************************************"
+        );
     }
 
     // Metodo per ottenere una lista di prodotti casuali da un menu specifico

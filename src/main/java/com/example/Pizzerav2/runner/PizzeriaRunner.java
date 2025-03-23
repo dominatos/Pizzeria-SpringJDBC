@@ -30,21 +30,21 @@ public class PizzeriaRunner implements CommandLineRunner {
 
 
         //DB INIZIALIZATION
-        //dbDAO.dropDB();
+        dbDAO.dropDB();
         dbDAO.initilizeDB();
 
 
 // MENU CRUD
-       //menuService.salvaMenu(menuService.creamenu());
-        //menuService.menuStamp(menuService.findMenuById(1L));
+       menuService.salvaMenu(menuService.creamenu());
+        menuService.menuStamp(menuService.findMenuById(1L));
         //menuService.removeMenu(2);
         Menu menu=menuService.findMenuById(1L);
-        //menu.setNome("Pizzeria al Ponte");
-        //menuService.updateMenu(menu);
+        menu.setNome("Pizzeria al Ponte");
+        menuService.updateMenu(menu);
 
         //menuService.menuStamp(menuService.findMenuByName("WTF2"));
 // ORDINE CRUD
-        //ordineService.creaNordini(10,1L);
+        ordineService.creaNordini(10,1L);
     //Ordine ordine = ordineService.getOrdineById(1L);
     //ordine.setListaProdotti(ordineService.getRandomProdotto(5,1L));
         //ordineService.modificaOrdine(ordine);
@@ -52,8 +52,8 @@ public class PizzeriaRunner implements CommandLineRunner {
         ordineService.stampaordini();
 
         // CLIENTE CRUD
-        Cliente c=ordineService.creaFakeCliente();
-        System.out.println(ordineService.getClienteById(c.getId()));
+        //Cliente c=ordineService.creaFakeCliente();
+        //System.out.println(ordineService.getClienteById(c.getId()));
 
         //c=ordineService.getCustomCliente("Carmine","WTF","6456456");
         //ordineService.saveCliente(c);
@@ -64,7 +64,7 @@ public class PizzeriaRunner implements CommandLineRunner {
 //        c.setTelefono("8798787655");
 //        ordineService.modificaCliente(c);
 
-        //ordineService.stampaListaCliente();
+        ordineService.stampaListaCliente();
 
 
 
