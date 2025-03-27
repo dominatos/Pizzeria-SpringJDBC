@@ -26,7 +26,7 @@ public class PizzeriaRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-
+        System.out.println("Pizzeria Runner");
 
 
         //DB INIZIALIZATION
